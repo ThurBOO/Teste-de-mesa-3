@@ -1,1 +1,58 @@
+using System;
+using System.Collections.Generic;
 
+class Programa
+{
+    static void Main()
+    {
+        List<decimal> valores = new List<decimal>();
+        List<decimal> taxasDeJuros = new List<decimal>();// crimaos as tabelas para armazenar tanto os valores quanto os juros
+
+        //função para a entrada de valores e das taxas de juros
+        while (true)
+        {
+            Console.WriteLine("Digite um valor (ou 'sair' para terminar):");
+            string entradaValor = Console.ReadLine();
+            if (entradaValor.ToLower() == "sair")
+                break;
+
+            if (decimal.TryParse(entradaValor, out decimal valor))//confere se o valor é decimal
+            {
+                valores.Add(valor);
+
+                Console.WriteLine("Digite a taxa de juros para esse valor:");
+                string entradaTaxa = Console.ReadLine();
+                if (decimal.TryParse(entradaTaxa, out decimal taxa))//confere se o valor é decimal
+                {
+                    taxa = taxa/100;
+                    taxasDeJuros.Add(taxa);//adiciona o dado na lista
+                }
+                else
+                {
+                    Console.WriteLine("Entrada inválida. Por favor, insira uma taxa de juros válida.");
+                    valores.RemoveAt(valores.Count - 1); // remove o ultimo valor colocado na lista
+                }
+            }
+            else
+            {
+                Console.WriteLine("Entrada inválida. Por favor, insira um número válido.");
+            }
+        }
+
+        Console.WriteLine("Rendimento Futuro para um período de 8 meses e 10 dias:");
+        Console.WriteLine("Valor investidp\t\tTaxa de juros\t\tValor Final");
+        for (int i = 0; i < valores.Count; i++)//exploramos cada valor das listas
+        {
+            double valorFinal = (double)valores[i] * Math.Pow(1 + (double)taxasDeJuros[i], 8.33333333333);//calculamos o valor futuro
+            Console.WriteLine($"{valores[i]:C}\t\t{taxasDeJuros[i]:P}\t\t\t{valorFinal:C}");
+        }
+       double valorFinals = (double)valores[0];
+       for (int x = 1; x <= 5; x++)
+            {
+                double rendas = valorFinals * (double)taxasDeJuros[0];
+                valorFinals += rendas;
+                Console.WriteLine($"\nRendimento mesal do mês {x}: R$ {rendas:C2}");
+                Console.WriteLine($"Valor Final Mensal: R${valorFinals:C2}");
+            }
+    }
+}
