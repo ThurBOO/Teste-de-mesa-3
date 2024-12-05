@@ -1,38 +1,83 @@
 using System;
+using System.Collections.Generic;
 
-class Program
+public class Investimento
 {
-    static void Main(string[] args)
+    public decimal ValorInicial { get; set; }
+    public decimal TaxaDeJuros { get; set; }
+
+    public Investimento(decimal valorInicial, decimal taxaDeJuros)
     {
-        System.Console.WriteLine("Informe o valor atual:");
-        double valorAtual = double.Parse(Console.ReadLine());
+        ValorInicial = valorInicial;
+        TaxaDeJuros = taxaDeJuros;
+    }
 
-        System.Console.WriteLine("Informe a taxa de juros (em %):");
-        double taxaJuros = double.Parse(Console.ReadLine()) / 100;
+    // Método para calcular o rendimento mensal
+    public decimal CalcularRendaMensal()
+    {
+        TaxaDeJuros = TaxaDeJuros / 100;  // Converte a taxa de juros para decimal
+        decimal rendimento = ValorInicial * TaxaDeJuros;  // Calcula o rendimento mensal
+        ValorInicial += rendimento;  // Atualiza o valor inicial com o rendimento
+        return rendimento;  // Retorna o rendimento do mês
+    }
 
-        System.Console.WriteLine("Informe o período em meses:");
-        int periodoTotal = int.Parse(Console.ReadLine());
+    // Método para calcular o rendimento total para o período de 8 meses e 10 dias
+    public decimal CalcularRenda()
+    {
+        TaxaDeJuros = TaxaDeJuros/100;
+        decimal periodoMes = 8.33333333333M;  // Período de 8 meses e 10 dias
+        decimal percentualJuros = ValorInicial * (decimal)Math.Pow((double)(1 + TaxaDeJuros), (double)periodoMes);
+        decimal rendimento = percentualJuros - ValorInicial;
+        return rendimento;  // Retorna o rendimento total
+    }
+}
 
-        System.Console.WriteLine("Informe o mês do resgate:");
-        int mesResgate = int.Parse(Console.ReadLine());
+class Programa
+{
+    static void Main()
+    {
+        List<decimal> valores = new List<decimal>();  // Lista para armazenar os valores iniciais
+        List<decimal> taxasDeJuros = new List<decimal>();  // Lista para armazenar as taxas de juros
 
-        System.Console.WriteLine("Informe o valor do saque (se houver):");
-        double valorSaque = double.Parse(Console.ReadLine());
-
-        System.Console.WriteLine("| PERÍODO |  VALOR ATUAL  | RENDIMENTO LIQ. | REND. ACUMULADO |  SAQUE   | VALOR FINAL |");
-        System.Console.WriteLine("|---------|---------------|-----------------|-----------------|----------|-------------|");
-
-        for (int periodo = 0; periodo <= periodoTotal; periodo++)
+        // Função para a entrada de valores e das taxas de juros
+        while (true)
         {
-            double rendimento = valorAtual * taxaJuros;
-            double rendimentoLiquido = rendimento - (periodo == mesResgate ? valorSaque : 0);
-            double rendimentoAcumulado = valorAtual + rendimento;
-            valorAtual = rendimentoAcumulado - (periodo == mesResgate ? valorSaque : 0);
-
-            System.Console.WriteLine($"| {periodo,-7} | {valorAtual,13:C2} | {rendimentoLiquido,15:C2} | {rendimentoAcumulado,15:C2} | {(periodo == mesResgate ? valorSaque : 0),8:C2} | {valorAtual,11:C2} |");
-
-            if (valorAtual <= 0)
+            Console.WriteLine("Digite um valor (ou 'sair' para terminar):");
+            string entradaValor = Console.ReadLine();
+            if (entradaValor.ToLower() == "sair")
                 break;
+
+            if (decimal.TryParse(entradaValor, out decimal valor))  // Confere se o valor é decimal
+            {
+                valores.Add(valor);  // Adiciona o valor na lista
+
+                Console.WriteLine("Digite a taxa de juros para esse valor:");
+                string entradaTaxa = Console.ReadLine();
+                if (decimal.TryParse(entradaTaxa, out decimal taxa))  // Confere se a taxa é decimal
+                {
+                    taxasDeJuros.Add(taxa);  // Adiciona a taxa na lista
+                }
+                else
+                {
+                    Console.WriteLine("Entrada inválida. Por favor, insira uma taxa de juros válida.");
+                    valores.RemoveAt(valores.Count - 1);  // Remove o último valor colocado na lista
+                }
+            }
+            else
+            {
+                Console.WriteLine("Entrada inválida. Por favor, insira um número válido.");
+            }
+        }
+
+        Console.WriteLine("Rendimento Futuro para um período de 8 meses e 10 dias:");
+        Console.WriteLine("Valor investido\t\tTaxa de juros\t\tRendimento Total");
+
+        // Calculando o rendimento para cada investimento
+        for (int i = 0; i < valores.Count; i++)  // Para cada valor das listas
+        {
+            Investimento investimento = new Investimento(valores[i], taxasDeJuros[i]);
+            decimal rendimentoTotal = investimento.CalcularRenda();  // Calcula o rendimento total para o período
+            Console.WriteLine($"{valores[i]:C}\t\t{taxasDeJuros[i]/100:P}\t\t\t{rendimentoTotal:C}");
         }
     }
 }
