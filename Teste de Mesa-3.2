@@ -1,58 +1,38 @@
 using System;
-using System.Collections.Generic;
 
-class Programa
+class Program
 {
-    static void Main()
+    static void Main(string[] args)
     {
-        List<decimal> valores = new List<decimal>();
-        List<decimal> taxasDeJuros = new List<decimal>();// crimaos as tabelas para armazenar tanto os valores quanto os juros
+        System.Console.WriteLine("Informe o valor atual:");
+        double valorAtual = double.Parse(Console.ReadLine());
 
-        //função para a entrada de valores e das taxas de juros
-        while (true)
+        System.Console.WriteLine("Informe a taxa de juros (em %):");
+        double taxaJuros = double.Parse(Console.ReadLine()) / 100;
+
+        System.Console.WriteLine("Informe o período em meses:");
+        int periodoTotal = int.Parse(Console.ReadLine());
+
+        System.Console.WriteLine("Informe o mês do resgate:");
+        int mesResgate = int.Parse(Console.ReadLine());
+
+        System.Console.WriteLine("Informe o valor do saque (se houver):");
+        double valorSaque = double.Parse(Console.ReadLine());
+
+        System.Console.WriteLine("| PERÍODO |  VALOR ATUAL  | RENDIMENTO LIQ. | REND. ACUMULADO |  SAQUE   | VALOR FINAL |");
+        System.Console.WriteLine("|---------|---------------|-----------------|-----------------|----------|-------------|");
+
+        for (int periodo = 0; periodo <= periodoTotal; periodo++)
         {
-            Console.WriteLine("Digite um valor (ou 'sair' para terminar):");
-            string entradaValor = Console.ReadLine();
-            if (entradaValor.ToLower() == "sair")
+            double rendimento = valorAtual * taxaJuros;
+            double rendimentoLiquido = rendimento - (periodo == mesResgate ? valorSaque : 0);
+            double rendimentoAcumulado = valorAtual + rendimento;
+            valorAtual = rendimentoAcumulado - (periodo == mesResgate ? valorSaque : 0);
+
+            System.Console.WriteLine($"| {periodo,-7} | {valorAtual,13:C2} | {rendimentoLiquido,15:C2} | {rendimentoAcumulado,15:C2} | {(periodo == mesResgate ? valorSaque : 0),8:C2} | {valorAtual,11:C2} |");
+
+            if (valorAtual <= 0)
                 break;
-
-            if (decimal.TryParse(entradaValor, out decimal valor))//confere se o valor é decimal
-            {
-                valores.Add(valor);
-
-                Console.WriteLine("Digite a taxa de juros para esse valor:");
-                string entradaTaxa = Console.ReadLine();
-                if (decimal.TryParse(entradaTaxa, out decimal taxa))//confere se o valor é decimal
-                {
-                    taxa = taxa/100;
-                    taxasDeJuros.Add(taxa);//adiciona o dado na lista
-                }
-                else
-                {
-                    Console.WriteLine("Entrada inválida. Por favor, insira uma taxa de juros válida.");
-                    valores.RemoveAt(valores.Count - 1); // remove o ultimo valor colocado na lista
-                }
-            }
-            else
-            {
-                Console.WriteLine("Entrada inválida. Por favor, insira um número válido.");
-            }
         }
-
-        Console.WriteLine("Rendimento Futuro para um período de 8 meses e 10 dias:");
-        Console.WriteLine("Valor investidp\t\tTaxa de juros\t\tValor Final");
-        for (int i = 0; i < valores.Count; i++)//exploramos cada valor das listas
-        {
-            double valorFinal = (double)valores[i] * Math.Pow(1 + (double)taxasDeJuros[i], 8.33333333333);//calculamos o valor futuro
-            Console.WriteLine($"{valores[i]:C}\t\t{taxasDeJuros[i]:P}\t\t\t{valorFinal:C}");
-        }
-       double valorFinals = (double)valores[0];
-       for (int x = 1; x <= 5; x++)
-            {
-                double rendas = valorFinals * (double)taxasDeJuros[0];
-                valorFinals += rendas;
-                Console.WriteLine($"\nRendimento mesal do mês {x}: R$ {rendas:C2}");
-                Console.WriteLine($"Valor Final Mensal: R${valorFinals:C2}");
-            }
     }
 }
