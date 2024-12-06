@@ -1,0 +1,175 @@
+using System;
+using System.Collections.Generic;
+
+public class Investimento
+{
+    public decimal ValorInicial { get; set; }
+    public decimal TaxaDeJuros { get; set; }
+    public decimal RendimentoRestante { get; set; } // redimento que sobra depois do saque
+
+    public Investimento(decimal valorInicial, decimal taxaDeJuros)
+    {
+        ValorInicial = valorInicial;
+        TaxaDeJuros = taxaDeJuros;
+    }
+    public decimal CalcularRendaMensal()//calcular o rendimento mes por mes
+    {
+        decimal taxaMensal = TaxaDeJuros / 100;
+        decimal rendimento = ValorInicial * taxaMensal; // 
+        ValorInicial += rendimento;
+        return rendimento;
+    }
+    public decimal CalcularRenda()
+    {
+        decimal taxaMensal = TaxaDeJuros / 100;
+        decimal periodoMes = 8.33333333333M;
+        decimal percentualJuros = ValorInicial * (decimal)Math.Pow((double)(1 + taxaMensal), (double)periodoMes);
+        decimal rendimento = percentualJuros - ValorInicial;
+        return rendimento;
+    }
+
+    
+    public void AplicarSaque(decimal valorSaque)//alcula o saldo após o saque no quinto mes
+    {
+        ValorInicial -= valorSaque;
+    }
+}
+
+class Programa
+{
+    static void Main()
+    {
+        List<decimal> valores = new List<decimal>(); 
+        List<decimal> taxasDeJuros = new List<decimal>(); //são as listas para armazenar tanto os valores iniciais quanto a taxa de juros
+
+        //bloco para a entrada de valores
+        while (true)
+        {
+            Console.WriteLine("Digite um valor (ou 'sair' para terminar):");
+            string entradaValor = Console.ReadLine();
+            if (entradaValor.ToLower() == "sair")
+                break;
+
+            if (decimal.TryParse(entradaValor, out decimal valor)) 
+            {
+                valores.Add(valor);
+
+                Console.WriteLine("Digite a taxa de juros para esse valor:");
+                string entradaTaxa = Console.ReadLine();
+                if (decimal.TryParse(entradaTaxa, out decimal taxa))
+                {
+                    taxasDeJuros.Add(taxa);
+                }
+                else
+                {
+                    Console.WriteLine("Entrada inválida. Por favor, insira uma taxa de juros válida.");
+                    valores.RemoveAt(valores.Count - 1); //tira o último valor colocado na lista
+                }
+            }
+            else
+            {
+                Console.WriteLine("Entrada inválida. Por favor, insira um número válido.");
+            }
+        }
+
+        Console.WriteLine("Rendimento Futuro para um período de 8 meses e 10 dias:");
+        Console.WriteLine("Valor investido\t\tTaxa de juros\t\tRendimento Total");
+
+        //calcular o endimento para cada investimento
+        for (int i = 0; i < valores.Count; i++) 
+        {
+            Investimento investimento = new Investimento(valores[i], taxasDeJuros[i]);
+            decimal rendimentoTotal = investimento.CalcularRenda(); //rendimento total para o período
+            Console.WriteLine($"{valores[i]:C}\t\t{taxasDeJuros[i]/100:P}\t\t\t{rendimentoTotal + valores[i]:C}");
+        }
+        Console.WriteLine("\nRendimento Mensal até o mes 4:");
+        for (int i = 0; i < valores.Count; i++) 
+
+        {
+            Investimento investimento = new Investimento(valores[i], taxasDeJuros[i]);
+            decimal totalRendimento = 0M;
+
+            for (int mes = 1; mes <= 8.33333333333M; mes++)
+            {
+                decimal rendimentoMensal = investimento.CalcularRendaMensal();
+                totalRendimento += rendimentoMensal;
+
+                //quando chegar no quinto mes perguntar o valor do saque
+                if (mes == 5)
+                {
+                    Console.WriteLine($"Mês {mes}: Valor Total: {investimento.ValorInicial:C}\t\tRendimento Mensal: {rendimentoMensal:C}");
+                    Console.WriteLine("Digite o valor do saque:");
+                    if (decimal.TryParse(Console.ReadLine(), out decimal valorSaque))
+                    {
+                     investimento.AplicarSaque(valorSaque);
+
+                     Console.WriteLine("\nTabela de Resumo:");
+                     Console.WriteLine("Valor Presente Investido:\t{0:C}", valores[i]);
+                     Console.WriteLine("Taxa de Juros:\t\t\t{0:P}", taxasDeJuros[i] / 100);
+                     Console.WriteLine("Número de Períodos (mes):\t{0}", mes);
+                     Console.WriteLine("Resgate do Rendimento:\t\t{0:C}", valorSaque);
+                     Console.WriteLine("Saldo Líquido Restante:\t\t{0:C}", investimento.ValorInicial);
+                     Console.WriteLine("Rendimento Restante:\t\t{0:C}", totalRendimento - valorSaque);
+                     Console.WriteLine("\n");
+                     Console.WriteLine("A tebela que foi pedida na planilha");
+                     
+                    }
+                    else
+                    {
+                        Console.WriteLine("Valor de saque inválido.");
+
+                    }
+                }
+
+                else
+                {
+                    //mostra os rendimentos mensais normalmente
+                    Console.WriteLine($"Mês {mes}: Valor Total: {investimento.ValorInicial:C}\t\tRendimento Mensal: {rendimentoMensal:C}");
+                    
+                }
+
+           
+            }
+            
+                 Console.WriteLine("\n");
+        }
+        
+                        // tabela que foi pedida na planilha
+        Console.WriteLine("\nRendimento Mensal até o mês 8:");
+        Console.WriteLine("| PERÍODO |  VALOR ATUAL  | RENDIMENTO LIQ. | REND. ACUMULADO |   SAQUE   | VALOR FINAL |");
+        Console.WriteLine("|---------|---------------|-----------------|-----------------|-----------|-------------|");
+
+        //calcular o resndimmentos até o mes 8 e faze o saque no mes 5
+        for (int i = 0; i < valores.Count; i++) 
+        {
+            Investimento investimento = new Investimento(valores[i], taxasDeJuros[i]);
+            decimal totalRendimento = 0M;
+            decimal valorSaque = 0M;
+            
+            for (int mes = 1; mes <= 8.33333333333M; mes++)
+            {
+                decimal rendimentoMensal = investimento.CalcularRendaMensal();
+                totalRendimento += rendimentoMensal;
+
+                if (mes == 5)
+                {
+                    Console.WriteLine($"Mês {mes}: Valor Total: {investimento.ValorInicial:C}\t\tRendimento Mensal: {rendimentoMensal:C}");
+                    Console.WriteLine("Digite o valor do saque:");
+                    
+                    if (decimal.TryParse(Console.ReadLine(), out valorSaque))
+                    {
+                        investimento.AplicarSaque(valorSaque);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Valor de saque inválido.");
+                    }
+                }
+                Console.WriteLine($"|{mes,-9}|{investimento.ValorInicial,15:C}|{rendimentoMensal,17:C}|{totalRendimento,17:C}|{(mes == 5 ? valorSaque : 0),11:C}|{investimento.ValorInicial,13:C}|");
+            }
+            Console.WriteLine("\n\n");
+        }
+    }
+}
+
+    
